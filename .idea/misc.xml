@@ -3,12 +3,20 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/activity_login.xml" value="0.33" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/activity_main.xml" value="0.21965579710144928" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/activity_main_board.xml" value="0.21965579710144928" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/app_bar_main_board.xml" value="0.21965579710144928" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/content_main_board.xml" value="0.21965579710144928" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/fragment_gallery.xml" value="0.21965579710144928" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.35" />
+        <entry key="app/src/main/res/layout/activity_main_board.xml" value="0.35" />
+        <entry key="app/src/main/res/layout/app_bar_main_board.xml" value="0.35" />
+        <entry key="app/src/main/res/layout/content_main_board.xml" value="0.35" />
+        <entry key="app/src/main/res/layout/fragment_gallery.xml" value="0.35" />
+        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.35" />
+        <entry key="app/src/main/res/layout/fragment_slideshow.xml" value="0.35" />
+        <entry key="app/src/main/res/layout/nav_header_main_board.xml" value="0.35" />
+        <entry key="app/src/main/res/menu/main_board.xml" value="0.35" />
       </map>
     </option>
   </component>
