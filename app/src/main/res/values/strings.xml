@@ -1,4 +1,6 @@
 <resources>
+    <string name="version">v0.0b4</string>
+
     <string name="app_name">redditpico</string>
     <string name="title_activity_main_board">MainBoardActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -11,4 +13,10 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+
+    <string name="signin">Sign in</string>
+    <string name="register">Register</string>
 </resources>
