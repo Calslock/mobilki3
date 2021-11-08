@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         web = (WebView) auth_dialog.findViewById(R.id.webv);
         web.getSettings().setJavaScriptEnabled(true);
 
-        String url = Auth.OAUTH_URL + "?client_id=" + Auth.CLIENT_ID + "&response_type=code&state=TEST&redirect_uri=" + Auth.REDIRECT_URI + "&scope=" + Auth.OAUTH_SCOPE;
+        String url = Auth.OAUTH_URL + "?client_id=" + Auth.CLIENT_ID + "&response_type=code&state="+DEVICE_ID+"&redirect_uri=" + Auth.REDIRECT_URI + "&scope=" + Auth.OAUTH_SCOPE;
 
         web.loadUrl(url);
 
@@ -86,7 +86,11 @@ public class LoginActivity extends AppCompatActivity {
 
                     try {
                         new RedditClient(getApplicationContext()).getToken(Auth.TOKEN_URL, Auth.GRANT_TYPE2, DEVICE_ID);
-                        Toast.makeText(getApplicationContext(), "Auccess Token: " + pref.getString("token", ""), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Success Token: " + pref.getString("token", ""), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getApplicationContext(), MainBoardActivity.class);
+                        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(intent);
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -108,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
         auth_dialog.setCancelable(true);
 
         //Intent intent = new Intent(getApplicationContext(), MainBoardActivity.class);
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        startActivity(intent);
+        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        //startActivity(intent);
     }
 }
