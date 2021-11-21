@@ -21,5 +21,5 @@ public interface TokenDao {
     TokenEntity getToken(int id);
 
     @Query("SELECT * FROM tokens")
-    List<TokenEntity> getAllTokens(int id);
+    List<TokenEntity> getAllTokens();
 }
