@@ -1,5 +1,5 @@
 <resources>
-    <string name="version">v0.0b4</string>
+    <string name="version">v0.0b6</string>
 
     <string name="app_name">redditpico</string>
     <string name="title_activity_main_board">MainBoardActivity</string>
@@ -17,6 +17,6 @@
     <string name="login">Login</string>
     <string name="password">Password</string>
 
-    <string name="signin">Sign in</string>
+    <string name="signin">Sign in via reddit.com</string>
     <string name="register">Register</string>
 </resources>

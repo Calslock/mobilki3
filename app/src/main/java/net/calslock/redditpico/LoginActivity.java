@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                     setResult(Activity.RESULT_CANCELED, resultIntent);
                     SharedPreferences.Editor edit = pref.edit();
                     edit.putString("Code", authCode);
-                    edit.commit();
+                    edit.apply();
                     auth_dialog.dismiss();
                     Toast.makeText(getApplicationContext(), "Authorization Code is: " + pref.getString("Code", ""), Toast.LENGTH_SHORT).show();
 
