@@ -1,44 +1,27 @@
 package net.calslock.redditpico;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Toast;
-
 import net.calslock.redditpico.app.RedditClient;
-import net.calslock.redditpico.config.Auth;
 import net.calslock.redditpico.room.TokenDao;
 import net.calslock.redditpico.room.TokenEntity;
 import net.calslock.redditpico.room.TokenRoomDatabase;
-
-import org.json.JSONException;
-
-import java.util.UUID;
+import net.calslock.redditpico.toaster.Toaster;
 
 public class LoginActivity extends AppCompatActivity {
 
-    boolean authComplete = false;
-    String DEVICE_ID = UUID.randomUUID().toString();
-    WebView web;
-    SharedPreferences pref;
-    Dialog auth_dialog;
-    String authCode;
-    Intent resultIntent = new Intent();
-
-    TokenEntity token;
     TokenDao tokenDao;
     TokenRoomDatabase tkDatabase;
+    RedditClient redditClient;
+
+    String login, password, access_token;
+    EditText loginbox, passwordbox;
+    TokenEntity token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,90 +30,28 @@ public class LoginActivity extends AppCompatActivity {
         setTitle("reddit-pico");
         tkDatabase = TokenRoomDatabase.getDatabase(getApplicationContext());
         tokenDao = tkDatabase.tokenDao();
-
-        pref = getSharedPreferences("AppPref", MODE_PRIVATE);
-
+        redditClient = new RedditClient(getApplicationContext());
+        loginbox = (EditText) findViewById(R.id.loginUsername);
+        passwordbox = (EditText) findViewById(R.id.loginPassword);
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
-    public void getToken(View v){
-        auth_dialog = new Dialog(LoginActivity.this);
-        auth_dialog.setContentView(R.layout.auth_dialog);
-        web = (WebView) auth_dialog.findViewById(R.id.webv);
-        web.getSettings().setJavaScriptEnabled(true);
-
-        String url = Auth.OAUTH_URL + "?client_id=" + Auth.CLIENT_ID + "&response_type=code&state="+DEVICE_ID+"&redirect_uri=" + Auth.REDIRECT_URI + "&scope=" + Auth.OAUTH_SCOPE;
-
-        web.loadUrl(url);
-
-        Toast.makeText(getApplicationContext(), "" + url, Toast.LENGTH_LONG).show();
-
-        web.setWebViewClient(new WebViewClient(){
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
+    public void goToMain(View v){
+        login = loginbox.getText().toString();
+        password = passwordbox.getText().toString();
+        try {
+            access_token = redditClient.getToken(login,password);
+            if (access_token != null) {
+                token = new TokenEntity(0, access_token);
+                new Thread(() -> {
+                    tokenDao.delete();
+                    tokenDao.insert(token);
+                    Intent intent = new Intent(getApplicationContext(), MainBoardActivity.class);
+                    startActivity(intent);
+                }).start();
+                this.finish();
             }
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
-            }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-
-                if (url.contains("?code=") || url.contains("&code=")) {
-                    Uri uri = Uri.parse(url);
-                    authCode = uri.getQueryParameter("code");
-                    Log.i("", "CODE : " + authCode);
-                    authComplete = true;
-                    resultIntent.putExtra("code", authCode);
-                    LoginActivity.this.setResult(Activity.RESULT_OK, resultIntent);
-                    setResult(Activity.RESULT_CANCELED, resultIntent);
-                    SharedPreferences.Editor edit = pref.edit();
-                    edit.putString("Code", authCode);
-                    edit.apply();
-                    auth_dialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Authorization Code is: " + pref.getString("Code", ""), Toast.LENGTH_SHORT).show();
-
-                    try {
-                        new RedditClient(getApplicationContext()).getToken(Auth.TOKEN_URL, Auth.GRANT_TYPE2, DEVICE_ID);
-                        Toast.makeText(getApplicationContext(), "Success Token: " + pref.getString("token", ""), Toast.LENGTH_SHORT).show();
-                        goToMain(pref.getString("token", ""));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-                else if (url.contains("error=access_denied")) {
-                    Log.i("", "ACCESS_DENIED_HERE");
-                    resultIntent.putExtra("code", authCode);
-                    authComplete = true;
-                    setResult(Activity.RESULT_CANCELED, resultIntent);
-                    Toast.makeText(getApplicationContext(), "Error Occured", Toast.LENGTH_SHORT).show();
-
-                    auth_dialog.dismiss();
-                }
-            }
-        });
-        auth_dialog.show();
-        auth_dialog.setTitle("Authorize");
-        auth_dialog.setCancelable(true);
+        }catch(Exception e){
+            Toaster.makeToast(getApplicationContext(), "Connection error");
+        }
     }
-
-    public void goToMain(String code){
-        token = new TokenEntity(0, code);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                tokenDao.delete();
-                tokenDao.insert(token);
-                Intent intent = new Intent(getApplicationContext(), MainBoardActivity.class);
-                startActivity(intent);
-            }
-        }).start();
-        this.finish();
-    }
-
 }

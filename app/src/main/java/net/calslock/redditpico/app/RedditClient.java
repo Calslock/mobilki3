@@ -1,146 +1,71 @@
 package net.calslock.redditpico.app;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
+import android.util.Base64;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import net.calslock.redditpico.config.Auth;
+import net.calslock.redditpico.room.TokenDao;
+import net.calslock.redditpico.room.TokenEntity;
+import net.calslock.redditpico.room.TokenRoomDatabase;
+import net.calslock.redditpico.toaster.Toaster;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.message.BasicHeader;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RedditClient {
-
-    private static final String BASE_URL = "https://www.reddit.com/api/v1/";
-    SharedPreferences pref;
-    String token;
+    String access_token;
     Context context;
 
     public RedditClient(Context context) {
         this.context = context;
     }
 
-    private static AsyncHttpClient client = new AsyncHttpClient();
+    public String getToken(String login, String password){
+        RequestQueue queue = Volley.newRequestQueue(context);
 
-    public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.get(getAbsoluteUrl(url), params, responseHandler);
-    }
-
-    public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-
-        client.post(getAbsoluteUrl(url), params, responseHandler);
-    }
-
-    private static String getAbsoluteUrl(String relativeUrl) {
-        return BASE_URL + relativeUrl;
-    }
-
-    public void getToken(String relativeUrl,String grant_type,String device_id) throws JSONException {
-        client.setBasicAuth(Auth.CLIENT_ID,Auth.CLIENT_SECRET);
-        pref = context.getSharedPreferences("AppPref",Context.MODE_PRIVATE);
-        String code =pref.getString("Code", "");
-
-        RequestParams requestParams = new RequestParams();
-        requestParams.put("code",code);
-        requestParams.put("grant_type",grant_type);
-        requestParams.put("redirect_uri", Auth.REDIRECT_URI);
-
-        post(relativeUrl, requestParams, new JsonHttpResponseHandler() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Auth.AUTH_URL,
+                response -> {
+                    try {
+                        JSONObject res = new JSONObject(response);
+                        access_token = res.getString("access_token");
+                        //Toaster.makeToast(context, access_token);
+                    } catch (JSONException j) {
+                        j.printStackTrace();
+                    }
+                },
+                error -> access_token = null){
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // If the response is JSONObject instead of expected JSONArray
-                Log.i("response",response.toString());
-                try {
-                    token = response.getString("access_token").toString();
-                    SharedPreferences.Editor edit = pref.edit();
-                    edit.putString("token",token);
-                    edit.apply();
-                    Log.i("Access_token",pref.getString("token",""));
-                }catch (JSONException j)
-                {
-                    j.printStackTrace();
-                }
-
+            //parametry żądania
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("grant_type", Auth.GRANT_TYPE2);
+                params.put("username", login);
+                params.put("password", password);
+                return params;
             }
-
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                //super.onFailure(statusCode, headers, throwable, errorResponse);
-                Log.i("statusCode", "" + statusCode);
-
-
+            //nagłówki żądania
+            public Map<String, String> getHeaders() throws AuthFailureError{
+                Map<String,String> headers = new HashMap<String, String>();
+                String credentials = String.format("%s:%s", Auth.CLIENT_ID, Auth.CLIENT_SECRET);
+                String auth = "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.DEFAULT);
+                headers.put("Authorization", auth);
+                return headers;
             }
-        });
+        };
 
+        queue.add(stringRequest);
+        return access_token;
     }
-
-    public void revokeToken() {
-        client.setBasicAuth(Auth.CLIENT_ID,Auth.CLIENT_SECRET);
-        pref = context.getSharedPreferences("AppPref", Context.MODE_PRIVATE);
-        String access_token = pref.getString("token","");
-
-        RequestParams requestParams = new RequestParams();
-        requestParams.put("token",access_token);
-        requestParams.put("token_type_hint","access_token");
-
-        post("revoke_token",requestParams,new JsonHttpResponseHandler(){
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // If the response is JSONObject instead of expected JSONArray
-                Log.i("response", response.toString());
-                SharedPreferences.Editor edit = pref.edit();
-                edit.remove(token);
-                edit.apply();
-
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                //super.onFailure(statusCode, headers, throwable, errorResponse);
-                Log.i("statusCode", "" + statusCode);
-            }
-        });
-    }
-
-    public void getUsername() {
-        Log.i("token", pref.getString("token", ""));
-        //  client.addHeader("Authorization", "bearer " + pref.getString("token", ""));
-        // client.addHeader("User-Agent", "Redditsavedoffline/0.1 by pratik");
-
-        Header[] headers = new Header[2];
-        headers[0] = new BasicHeader("User-Agent", "myRedditapp/0.1 by redditusername");
-        headers[1] = new BasicHeader("Authorization", "bearer " + pref.getString("token", ""));
-
-        client.get(context, "https://oauth.reddit.com/api/v1/me", headers, null, new JsonHttpResponseHandler() {
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.i("response", response.toString());
-                try {
-                    String username = response.getString("name").toString();
-                    SharedPreferences.Editor edit = pref.edit();
-                    edit.putString("username", username);
-                    edit.apply();
-                } catch (JSONException j) {
-                    j.printStackTrace();
-                }
-
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.i("response", errorResponse.toString());
-                Log.i("statusCode", "" + statusCode);
-            }
-        });
-    }
-
 }

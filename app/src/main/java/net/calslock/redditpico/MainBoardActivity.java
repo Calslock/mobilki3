@@ -75,7 +75,7 @@ public class MainBoardActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                tokenDao.getAllTokens();
+                tokenDao.delete();
             }
         }).start();
         Intent intent = new Intent(this, LoginActivity.class);
