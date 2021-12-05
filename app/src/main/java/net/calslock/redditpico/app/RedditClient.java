@@ -26,6 +26,7 @@ import java.util.Map;
 public class RedditClient {
     String access_token;
     Context context;
+    String testResponse;
 
     public RedditClient(Context context) {
         this.context = context;
@@ -67,5 +68,33 @@ public class RedditClient {
 
         queue.add(stringRequest);
         return access_token;
+    }
+
+    public String getUserInfo(){
+        RequestQueue queue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://www.oauth.reddit.com/api/v1/me",
+                response -> {
+                    try {
+                        JSONObject res = new JSONObject(response);
+                        testResponse = res.getString("access_token");
+                        //Toaster.makeToast(context, access_token);
+                    } catch (JSONException j) {
+                        j.printStackTrace();
+                    }
+                },
+                error -> testResponse = null){
+            @Override
+            //nagłówki żądania
+            public Map<String, String> getHeaders() throws AuthFailureError{
+                Map<String,String> headers = new HashMap<String, String>();
+                String auth = "bearer " +access_token;
+                headers.put("Authorization", auth);
+                headers.put("User-Agent", "MyBot/0.0.1");
+                return headers;
+            }
+        };
+
+        queue.add(stringRequest);
+        return testResponse;
     }
 }
