@@ -1,6 +1,8 @@
 package net.calslock.redditpico;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
 
@@ -15,15 +17,23 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 import net.calslock.redditpico.databinding.ActivityMainBoardBinding;
+import net.calslock.redditpico.room.TokenDao;
+import net.calslock.redditpico.room.TokenRoomDatabase;
 
 public class MainBoardActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBoardBinding binding;
 
+    TokenDao tokenDao;
+    TokenRoomDatabase tkDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setContentView(R.layout.activity_main_board);
+
+        tkDatabase = TokenRoomDatabase.getDatabase(getApplicationContext());
 
         binding = ActivityMainBoardBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -38,8 +48,6 @@ public class MainBoardActivity extends AppCompatActivity {
         });
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
                 .setOpenableLayout(drawer)
@@ -61,5 +69,18 @@ public class MainBoardActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main_board);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    public boolean logout(MenuItem item){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                tokenDao.getAllTokens();
+            }
+        }).start();
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        this.finish();
+        return true;
     }
 }

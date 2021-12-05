@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 @Database(entities = {TokenEntity.class}, version = 1, exportSchema = false)
 public abstract class TokenRoomDatabase extends RoomDatabase {
     private static volatile TokenRoomDatabase INSTANCE;
-    static public TokenRoomDatabase initDatabase(final Context context){
+    static public TokenRoomDatabase getDatabase(final Context context){
         if (INSTANCE == null){
             synchronized (TokenRoomDatabase.class){
                 if (INSTANCE == null){

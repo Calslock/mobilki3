@@ -2,6 +2,7 @@ package net.calslock.redditpico;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -42,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     public void goToMain(View v){
         auth_dialog = new Dialog(LoginActivity.this);
         auth_dialog.setContentView(R.layout.auth_dialog);
@@ -63,7 +65,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-
             }
 
             @Override
@@ -88,7 +89,6 @@ public class LoginActivity extends AppCompatActivity {
                         new RedditClient(getApplicationContext()).getToken(Auth.TOKEN_URL, Auth.GRANT_TYPE2, DEVICE_ID);
                         Toast.makeText(getApplicationContext(), "Success Token: " + pref.getString("token", ""), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getApplicationContext(), MainBoardActivity.class);
-                        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                         startActivity(intent);
 
                     } catch (JSONException e) {
@@ -110,9 +110,5 @@ public class LoginActivity extends AppCompatActivity {
         auth_dialog.show();
         auth_dialog.setTitle("Authorize");
         auth_dialog.setCancelable(true);
-
-        //Intent intent = new Intent(getApplicationContext(), MainBoardActivity.class);
-        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        //startActivity(intent);
     }
 }
