@@ -18,6 +18,9 @@ import android.widget.Toast;
 
 import net.calslock.redditpico.app.RedditClient;
 import net.calslock.redditpico.config.Auth;
+import net.calslock.redditpico.room.TokenDao;
+import net.calslock.redditpico.room.TokenEntity;
+import net.calslock.redditpico.room.TokenRoomDatabase;
 
 import org.json.JSONException;
 
@@ -33,18 +36,24 @@ public class LoginActivity extends AppCompatActivity {
     String authCode;
     Intent resultIntent = new Intent();
 
+    TokenEntity token;
+    TokenDao tokenDao;
+    TokenRoomDatabase tkDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         setTitle("reddit-pico");
+        tkDatabase = TokenRoomDatabase.getDatabase(getApplicationContext());
+        tokenDao = tkDatabase.tokenDao();
 
         pref = getSharedPreferences("AppPref", MODE_PRIVATE);
 
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    public void goToMain(View v){
+    public void getToken(View v){
         auth_dialog = new Dialog(LoginActivity.this);
         auth_dialog.setContentView(R.layout.auth_dialog);
         web = (WebView) auth_dialog.findViewById(R.id.webv);
@@ -88,9 +97,7 @@ public class LoginActivity extends AppCompatActivity {
                     try {
                         new RedditClient(getApplicationContext()).getToken(Auth.TOKEN_URL, Auth.GRANT_TYPE2, DEVICE_ID);
                         Toast.makeText(getApplicationContext(), "Success Token: " + pref.getString("token", ""), Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(getApplicationContext(), MainBoardActivity.class);
-                        startActivity(intent);
-
+                        goToMain(pref.getString("token", ""));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -111,4 +118,19 @@ public class LoginActivity extends AppCompatActivity {
         auth_dialog.setTitle("Authorize");
         auth_dialog.setCancelable(true);
     }
+
+    public void goToMain(String code){
+        token = new TokenEntity(0, code);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                tokenDao.delete();
+                tokenDao.insert(token);
+                Intent intent = new Intent(getApplicationContext(), MainBoardActivity.class);
+                startActivity(intent);
+            }
+        }).start();
+        this.finish();
+    }
+
 }

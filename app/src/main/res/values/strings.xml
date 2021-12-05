@@ -1,5 +1,5 @@
 <resources>
-    <string name="version">v0.0b8</string>
+    <string name="version">v0.0b9</string>
 
     <string name="app_name">redditpico</string>
     <string name="title_activity_main_board">MainBoardActivity</string>

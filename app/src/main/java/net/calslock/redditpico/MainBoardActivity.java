@@ -71,7 +71,7 @@ public class MainBoardActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    public boolean logout(MenuItem item){
+    public void logout(MenuItem item){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -81,6 +81,6 @@ public class MainBoardActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         this.finish();
-        return true;
     }
+
 }

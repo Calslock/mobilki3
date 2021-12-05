@@ -11,4 +11,11 @@ public class TokenEntity {
 
     @ColumnInfo(name = "login_token")
     public String token;
+
+    public TokenEntity(int id, String token){
+        this.id = id;
+        this.token = token;
+    }
+
+    public TokenEntity(){}
 }

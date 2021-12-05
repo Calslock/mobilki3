@@ -62,7 +62,7 @@ public class RedditClient {
                     token = response.getString("access_token").toString();
                     SharedPreferences.Editor edit = pref.edit();
                     edit.putString("token",token);
-                    edit.commit();
+                    edit.apply();
                     Log.i("Access_token",pref.getString("token",""));
                 }catch (JSONException j)
                 {
@@ -98,7 +98,7 @@ public class RedditClient {
                 Log.i("response", response.toString());
                 SharedPreferences.Editor edit = pref.edit();
                 edit.remove(token);
-                edit.commit();
+                edit.apply();
 
             }
 
@@ -128,7 +128,7 @@ public class RedditClient {
                     String username = response.getString("name").toString();
                     SharedPreferences.Editor edit = pref.edit();
                     edit.putString("username", username);
-                    edit.commit();
+                    edit.apply();
                 } catch (JSONException j) {
                     j.printStackTrace();
                 }
