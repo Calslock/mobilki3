@@ -34,6 +34,7 @@ public class MainBoardActivity extends AppCompatActivity {
         //setContentView(R.layout.activity_main_board);
 
         tkDatabase = TokenRoomDatabase.getDatabase(getApplicationContext());
+        tokenDao = tkDatabase.tokenDao();
 
         binding = ActivityMainBoardBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

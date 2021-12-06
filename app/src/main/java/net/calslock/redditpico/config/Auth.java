@@ -10,4 +10,6 @@ public class Auth {
     public static String AUTH_URL ="https://www.reddit.com/api/v1/access_token";
     public static String OAUTH_SCOPE="read";
     public static String DURATION = "permanent";
+
+    public static String API_ME_URL = "https://oauth.reddit.com/api/v1/me";
 }

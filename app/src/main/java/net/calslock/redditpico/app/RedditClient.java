@@ -2,6 +2,7 @@ package net.calslock.redditpico.app;
 
 import android.content.Context;
 import android.util.Base64;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -26,13 +27,13 @@ import java.util.Map;
 public class RedditClient {
     String access_token;
     Context context;
-    String testResponse;
+    String getResponse;
 
     public RedditClient(Context context) {
         this.context = context;
     }
 
-    public String getToken(String login, String password){
+    public void getToken(String login, String password, final VolleyCallback callback){
         RequestQueue queue = Volley.newRequestQueue(context);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, Auth.AUTH_URL,
@@ -40,6 +41,7 @@ public class RedditClient {
                     try {
                         JSONObject res = new JSONObject(response);
                         access_token = res.getString("access_token");
+                        callback.onSuccess(access_token);
                         //Toaster.makeToast(context, access_token);
                     } catch (JSONException j) {
                         j.printStackTrace();
@@ -65,36 +67,32 @@ public class RedditClient {
                 return headers;
             }
         };
-
         queue.add(stringRequest);
-        return access_token;
     }
-
-    public String getUserInfo(){
+    //Uniwersalna funkcja GET
+    //url - URL do API
+    //token - token z konta
+    //VolleyCallback
+    public void get(String url, String token, final VolleyCallback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://www.oauth.reddit.com/api/v1/me",
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 response -> {
                     try {
-                        JSONObject res = new JSONObject(response);
-                        testResponse = res.getString("access_token");
-                        //Toaster.makeToast(context, access_token);
-                    } catch (JSONException j) {
-                        j.printStackTrace();
+                        callback.onSuccess(response);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 },
-                error -> testResponse = null){
+                error -> callback.onFailure()) {
             @Override
             //nagłówki żądania
-            public Map<String, String> getHeaders() throws AuthFailureError{
-                Map<String,String> headers = new HashMap<String, String>();
-                String auth = "bearer " +access_token;
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                String auth = "bearer " + token;
                 headers.put("Authorization", auth);
-                headers.put("User-Agent", "MyBot/0.0.1");
                 return headers;
             }
         };
-
         queue.add(stringRequest);
-        return testResponse;
     }
 }
