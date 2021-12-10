@@ -1,4 +1,4 @@
-package net.calslock.redditpico.ui.slideshow;
+package net.calslock.redditpico.ui.settings;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,24 +13,23 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import net.calslock.redditpico.R;
-import net.calslock.redditpico.databinding.FragmentSlideshowBinding;
+import net.calslock.redditpico.databinding.FragmentSettingsBinding;
 
-public class SlideshowFragment extends Fragment {
+public class SettingsFragment extends Fragment {
 
-    private SlideshowViewModel slideshowViewModel;
-    private FragmentSlideshowBinding binding;
+    private SettingsViewModel settingsViewModel;
+    private FragmentSettingsBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        slideshowViewModel =
-                new ViewModelProvider(this).get(SlideshowViewModel.class);
+        settingsViewModel =
+                new ViewModelProvider(this).get(SettingsViewModel.class);
 
-        binding = FragmentSlideshowBinding.inflate(inflater, container, false);
+        binding = FragmentSettingsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         final TextView textView = binding.textSlideshow;
-        slideshowViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        settingsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);

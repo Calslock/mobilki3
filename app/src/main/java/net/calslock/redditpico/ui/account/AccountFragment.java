@@ -1,4 +1,4 @@
-package net.calslock.redditpico.ui.gallery;
+package net.calslock.redditpico.ui.account;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,24 +13,23 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import net.calslock.redditpico.R;
-import net.calslock.redditpico.databinding.FragmentGalleryBinding;
+import net.calslock.redditpico.databinding.FragmentAccountBinding;
 
-public class GalleryFragment extends Fragment {
+public class AccountFragment extends Fragment {
 
-    private GalleryViewModel galleryViewModel;
-    private FragmentGalleryBinding binding;
+    private AccountViewModel accountViewModel;
+    private FragmentAccountBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        galleryViewModel =
-                new ViewModelProvider(this).get(GalleryViewModel.class);
+        accountViewModel =
+                new ViewModelProvider(this).get(AccountViewModel.class);
 
-        binding = FragmentGalleryBinding.inflate(inflater, container, false);
+        binding = FragmentAccountBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         final TextView textView = binding.textGallery;
-        galleryViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        accountViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);

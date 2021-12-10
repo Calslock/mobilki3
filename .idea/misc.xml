@@ -3,6 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/drawable/ic_menu_camera.xml" value="0.24166666666666667" />
+        <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/drawable/ic_menu_gallery.xml" value="0.24166666666666667" />
+        <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/drawable/ic_menu_slideshow.xml" value="0.24166666666666667" />
+        <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/drawable/side_nav_bar.xml" value="0.24166666666666667" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/activity_login.xml" value="0.25" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/activity_main.xml" value="0.21965579710144928" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/activity_main_board.xml" value="0.21965579710144928" />
