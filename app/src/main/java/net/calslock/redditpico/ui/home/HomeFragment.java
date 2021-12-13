@@ -116,7 +116,7 @@ public class HomeFragment extends Fragment {
                     url = "https://oauth.reddit.com/api/v1/me";
                     token = tokenDao.getToken(0);
                     access_token = token.getToken();
-                    redditClient.get(url, access_token, new VolleyCallback() {
+                    redditClient.get(url, access_token, null, new VolleyCallback() {
                         @SuppressLint("SetTextI18n")
                         @Override
                         public void onSuccess(String userInfo) {

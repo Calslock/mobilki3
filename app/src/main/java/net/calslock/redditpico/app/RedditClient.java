@@ -73,7 +73,7 @@ public class RedditClient {
     //url - URL do API
     //token - token z konta
     //VolleyCallback
-    public void get(String url, String token, final VolleyCallback callback) {
+    public void get(String url, String token, Map<String, String> addHeaders, final VolleyCallback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 response -> {
@@ -90,6 +90,11 @@ public class RedditClient {
                 Map<String, String> headers = new HashMap<String, String>();
                 String auth = "bearer " + token;
                 headers.put("Authorization", auth);
+                if(addHeaders!=null && !addHeaders.isEmpty()){
+                    addHeaders.forEach((key, value) -> {
+                        headers.put(key,value);
+                    });
+                }
                 return headers;
             }
         };
