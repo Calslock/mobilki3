@@ -1,5 +1,5 @@
 <resources>
-    <string name="version">v0.0b4</string>
+    <string name="version">v0.0b9</string>
 
     <string name="app_name">redditpico</string>
     <string name="title_activity_main_board">MainBoardActivity</string>
@@ -8,15 +8,31 @@
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
+    <string name="action_logout">Logout</string>
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_account">Account</string>
+    <string name="menu_settings">Settings</string>
 
-    <string name="login">Login</string>
+    <string name="username">Username</string>
     <string name="password">Password</string>
 
     <string name="signin">Sign in</string>
     <string name="register">Register</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <string name="visuals_header">Visual</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="theme_title">Theme</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 </resources>
