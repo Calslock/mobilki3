@@ -1,11 +1,14 @@
 package net.calslock.redditpico;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import net.calslock.redditpico.app.RedditClient;
 import net.calslock.redditpico.app.VolleyCallback;
@@ -35,6 +38,9 @@ public class LoginActivity extends AppCompatActivity {
         redditClient = new RedditClient(getApplicationContext());
         loginbox = (EditText) findViewById(R.id.loginUsername);
         passwordbox = (EditText) findViewById(R.id.loginPassword);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SettingsActivity.SettingsFragment.updateTheme(prefs.getString("theme", "sysdef"));
     }
 
     public void goToMain(View v){

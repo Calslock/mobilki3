@@ -52,17 +52,15 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
-            SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
             SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                     if (key.equals("theme")){
-                        updateTheme(prefs.getString("theme", "sysdef"));
+                        updateTheme(sharedPreferences.getString("theme", "sysdef"));
                     }
                 }
             };
-
+            getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(listener);
         }
 
         public static void updateTheme(String newValue){
@@ -82,4 +80,6 @@ public class SettingsActivity extends AppCompatActivity {
             AppCompatDelegate.setDefaultNightMode(targetTheme);
         }
     }
+
+
 }
