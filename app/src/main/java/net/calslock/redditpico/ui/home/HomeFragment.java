@@ -1,5 +1,9 @@
 package net.calslock.redditpico.ui.home;
 
+/*
+https://api.reddit.com/subreddits/ zwraca subreddity najnowsze
+ */
+
 import static android.graphics.Bitmap.createScaledBitmap;
 
 import android.annotation.SuppressLint;
@@ -57,6 +61,7 @@ public class HomeFragment extends Fragment {
     String username, karma, imageurl;
     TextView sideBarName, sideBarKarma;
     ImageView sideBarAvatar;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -120,6 +125,7 @@ public class HomeFragment extends Fragment {
                         @SuppressLint("SetTextI18n")
                         @Override
                         public void onSuccess(String userInfo) {
+                            Log.i("token", access_token);
                             Log.i("Data", userInfo);
                             try {
                                 JSONObject userData = new JSONObject(userInfo);
@@ -154,7 +160,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    public Bitmap getAvatar(String avatarURL){
+    public static Bitmap getAvatar(String avatarURL){
         InputStream in;
         Bitmap bmp = null;
         int responseCode;

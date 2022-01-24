@@ -25,6 +25,11 @@
     <string name="visuals_header">Visual</string>
     <string name="sync_header">Sync</string>
 
+    <string name="post_karma">Post karma</string>
+    <string name="comment_karma">Comment karma</string>
+    <string name="awardee_karma">Awardee karma</string>
+    <string name="awarder_karma">Awarder karma</string>
+
     <!-- Messages Preferences -->
     <string name="signature_title">Your signature</string>
     <string name="theme_title">Theme</string>

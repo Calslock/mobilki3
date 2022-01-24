@@ -91,9 +91,7 @@ public class RedditClient {
                 String auth = "bearer " + token;
                 headers.put("Authorization", auth);
                 if(addHeaders!=null && !addHeaders.isEmpty()){
-                    addHeaders.forEach((key, value) -> {
-                        headers.put(key,value);
-                    });
+                    addHeaders.forEach(headers::put);
                 }
                 return headers;
             }
