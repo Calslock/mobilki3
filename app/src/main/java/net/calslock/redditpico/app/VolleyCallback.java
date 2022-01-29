@@ -1,5 +1,7 @@
 package net.calslock.redditpico.app;
 
+import org.json.JSONObject;
+
 public interface VolleyCallback {
     void onSuccess(String result);
     void onFailure();

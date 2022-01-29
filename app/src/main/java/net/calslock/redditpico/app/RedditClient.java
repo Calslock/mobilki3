@@ -9,6 +9,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -21,6 +22,7 @@ import net.calslock.redditpico.toaster.Toaster;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,6 +97,42 @@ public class RedditClient {
                 }
                 return headers;
             }
+        };
+        queue.add(stringRequest);
+    }
+
+    public void postJSON(String url, String token, JSONObject requestJSON, Map<String, String> addHeaders, final VolleyCallback callback) {
+        RequestQueue queue = Volley.newRequestQueue(context);
+        final String requestBody = requestJSON.toString();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                response -> {
+                    try {
+                        callback.onSuccess(response);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> callback.onFailure()) {
+            @Override
+            //nagłówki żądania
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                String auth = "bearer " + token;
+                headers.put("Authorization", auth);
+                if(addHeaders!=null && !addHeaders.isEmpty()){
+                    addHeaders.forEach(headers::put);
+                }
+                return headers;
+            }
+            @Override
+            public byte[] getBody() throws AuthFailureError{
+                try {
+                    return requestBody.getBytes(StandardCharsets.UTF_8);
+                } catch (Exception e){
+                    return null;
+                }
+            }
+            @Override public String getBodyContentType() {return "application/json; charset=utf-8";}
         };
         queue.add(stringRequest);
     }
