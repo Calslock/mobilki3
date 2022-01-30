@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.volley.VolleyError;
+
 import net.calslock.redditpico.R;
 import net.calslock.redditpico.app.RedditClient;
 import net.calslock.redditpico.app.VolleyCallback;
@@ -30,7 +32,6 @@ import org.json.JSONObject;
 
 public class AccountFragment extends Fragment {
 
-    private AccountViewModel accountViewModel;
     private FragmentAccountBinding binding;
     String url, access_token, username, imageurl;
     TokenEntity token;
@@ -45,8 +46,7 @@ public class AccountFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        accountViewModel =
-                new ViewModelProvider(this).get(AccountViewModel.class);
+        new ViewModelProvider(this).get(AccountViewModel.class);
 
         binding = FragmentAccountBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -89,7 +89,7 @@ public class AccountFragment extends Fragment {
                         Log.i("Data", userInfo);
                         try {
                             JSONObject userData = new JSONObject(userInfo);
-                            username = new StringBuilder().append("u/").append(userData.getString("name")).toString();
+                            username = "u/" + userData.getString("name");
                             imageurl = userData.getString("icon_img").split("\\?")[0];
                             karmaTable = new String[]{userData.getString("link_karma"), userData.getString("comment_karma"), userData.getString("awardee_karma"), userData.getString("awarder_karma")};
 
@@ -126,7 +126,7 @@ public class AccountFragment extends Fragment {
                         }
                     }
                     @Override
-                    public void onFailure(){}
+                    public void onFailure(VolleyError e){}
                 });
             }).start();
         } catch(Exception e){
@@ -137,7 +137,7 @@ public class AccountFragment extends Fragment {
     private Context mContext;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mContext = context;
     }

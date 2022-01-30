@@ -1,5 +1,6 @@
 package net.calslock.redditpico.config;
 
+@SuppressWarnings("unused")
 public class Auth {
     public static String CLIENT_ID = "49o54K74sNKJHYbwEOcCFw";
     public static String CLIENT_SECRET ="Lkrm8B7SXibfqcGbjXOCxGjX096esQ";

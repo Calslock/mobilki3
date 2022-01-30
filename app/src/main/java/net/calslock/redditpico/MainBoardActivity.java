@@ -1,23 +1,22 @@
 package net.calslock.redditpico;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.Menu;
+import android.view.MenuItem;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.navigation.NavigationView;
-
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
+
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import net.calslock.redditpico.databinding.ActivityMainBoardBinding;
 import net.calslock.redditpico.room.TokenDao;
@@ -43,13 +42,8 @@ public class MainBoardActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.appBarMainBoard.toolbar);
-        binding.appBarMainBoard.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        binding.appBarMainBoard.fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
         mAppBarConfiguration = new AppBarConfiguration.Builder(
@@ -76,13 +70,13 @@ public class MainBoardActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
+    @SuppressLint("ApplySharedPref")
     public void logout(MenuItem item){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                tokenDao.delete();
-            }
-        }).start();
+        new Thread(() -> tokenDao.delete()).start();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("token", "nontoken");
+        editor.commit();
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         this.finish();

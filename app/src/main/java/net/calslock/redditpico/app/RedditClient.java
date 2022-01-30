@@ -2,21 +2,13 @@ package net.calslock.redditpico.app;
 
 import android.content.Context;
 import android.util.Base64;
-import android.util.Log;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import net.calslock.redditpico.config.Auth;
-import net.calslock.redditpico.room.TokenDao;
-import net.calslock.redditpico.room.TokenEntity;
-import net.calslock.redditpico.room.TokenRoomDatabase;
 import net.calslock.redditpico.toaster.Toaster;
 
 import org.json.JSONException;
@@ -29,7 +21,6 @@ import java.util.Map;
 public class RedditClient {
     String access_token;
     Context context;
-    String getResponse;
 
     public RedditClient(Context context) {
         this.context = context;
@@ -42,18 +33,19 @@ public class RedditClient {
                 response -> {
                     try {
                         JSONObject res = new JSONObject(response);
+                        access_token = "";
                         access_token = res.getString("access_token");
                         callback.onSuccess(access_token);
                         //Toaster.makeToast(context, access_token);
                     } catch (JSONException j) {
-                        j.printStackTrace();
+                        Toaster.makeToast(context, "Couldn't login to account!");
                     }
                 },
                 error -> access_token = null){
             @Override
             //parametry żądania
             protected Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<String, String>();
+                Map<String,String> params = new HashMap<>();
                 params.put("grant_type", Auth.GRANT_TYPE2);
                 params.put("username", login);
                 params.put("password", password);
@@ -61,8 +53,8 @@ public class RedditClient {
             }
             @Override
             //nagłówki żądania
-            public Map<String, String> getHeaders() throws AuthFailureError{
-                Map<String,String> headers = new HashMap<String, String>();
+            public Map<String, String> getHeaders() {
+                Map<String,String> headers = new HashMap<>();
                 String credentials = String.format("%s:%s", Auth.CLIENT_ID, Auth.CLIENT_SECRET);
                 String auth = "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.DEFAULT);
                 headers.put("Authorization", auth);
@@ -85,11 +77,11 @@ public class RedditClient {
                         e.printStackTrace();
                     }
                 },
-                error -> callback.onFailure()) {
+                callback::onFailure) {
             @Override
             //nagłówki żądania
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<String, String>();
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
                 String auth = "bearer " + token;
                 headers.put("Authorization", auth);
                 if(addHeaders!=null && !addHeaders.isEmpty()){
@@ -101,6 +93,7 @@ public class RedditClient {
         queue.add(stringRequest);
     }
 
+    @SuppressWarnings("unused")
     public void postJSON(String url, String token, JSONObject requestJSON, Map<String, String> addHeaders, final VolleyCallback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
         final String requestBody = requestJSON.toString();
@@ -112,11 +105,11 @@ public class RedditClient {
                         e.printStackTrace();
                     }
                 },
-                error -> callback.onFailure()) {
+                callback::onFailure) {
             @Override
             //nagłówki żądania
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<String, String>();
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
                 String auth = "bearer " + token;
                 headers.put("Authorization", auth);
                 if(addHeaders!=null && !addHeaders.isEmpty()){
@@ -125,7 +118,7 @@ public class RedditClient {
                 return headers;
             }
             @Override
-            public byte[] getBody() throws AuthFailureError{
+            public byte[] getBody() {
                 try {
                     return requestBody.getBytes(StandardCharsets.UTF_8);
                 } catch (Exception e){

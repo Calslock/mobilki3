@@ -5,6 +5,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "tokens")
+@SuppressWarnings("unused")
 public class TokenEntity {
     @PrimaryKey
     public int id;

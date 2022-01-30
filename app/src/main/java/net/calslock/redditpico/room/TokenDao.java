@@ -7,6 +7,7 @@ import androidx.room.Query;
 import java.util.List;
 
 @Dao
+@SuppressWarnings("unused")
 public interface TokenDao {
     //Insert token with ID to DB
     @Insert

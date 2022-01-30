@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.volley.VolleyError;
 import com.google.android.material.navigation.NavigationView;
 
 import net.calslock.redditpico.MainBoardActivity;
@@ -151,7 +152,7 @@ public class HomeFragment extends Fragment {
                             }
                         }
                         @Override
-                        public void onFailure(){}
+                        public void onFailure(VolleyError e){}
                     });
                 }
             }).start();

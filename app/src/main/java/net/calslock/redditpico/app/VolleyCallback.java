@@ -1,10 +1,10 @@
 package net.calslock.redditpico.app;
 
-import org.json.JSONObject;
+import com.android.volley.VolleyError;
 
 public interface VolleyCallback {
     void onSuccess(String result);
-    void onFailure();
+    void onFailure(VolleyError error);
 }
 
 //Obsługa:
