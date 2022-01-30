@@ -117,7 +117,7 @@ public class AccountFragment extends Fragment {
                             for (int i = 0; i < karmaTable.length; i++){
                                 accKarma[i].setText(karmaTable[i]);
                             }
-                            Bitmap avatar = HomeFragment.getAvatar(imageurl);
+                            Bitmap avatar = HomeFragment.getImageFromURL(imageurl, 196, 196);
                             if (avatar != null) {
                                 accAvatar.setImageBitmap(avatar);
                             }

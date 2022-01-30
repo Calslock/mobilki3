@@ -8,7 +8,6 @@ import static android.graphics.Bitmap.createScaledBitmap;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -29,7 +28,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.android.volley.VolleyError;
 import com.google.android.material.navigation.NavigationView;
 
-import net.calslock.redditpico.MainBoardActivity;
 import net.calslock.redditpico.R;
 import net.calslock.redditpico.app.RedditClient;
 import net.calslock.redditpico.app.VolleyCallback;
@@ -37,16 +35,13 @@ import net.calslock.redditpico.databinding.FragmentHomeBinding;
 import net.calslock.redditpico.room.TokenDao;
 import net.calslock.redditpico.room.TokenEntity;
 import net.calslock.redditpico.room.TokenRoomDatabase;
-import net.calslock.redditpico.toaster.Toaster;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -83,6 +78,7 @@ public class HomeFragment extends Fragment {
         redditClient = new RedditClient(mContext);
 
         this.getUserInfo();
+        //this.populateContent();
 
 
         homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
@@ -143,7 +139,7 @@ public class HomeFragment extends Fragment {
 
                                 sideBarName.setText(username);
                                 sideBarKarma.setText("Karma: " + karma);
-                                Bitmap avatar = getAvatar(imageurl);
+                                Bitmap avatar = getImageFromURL(imageurl, 196, 196);
                                 if (avatar != null) {
                                     sideBarAvatar.setImageBitmap(avatar);
                                 }
@@ -161,7 +157,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    public static Bitmap getAvatar(String avatarURL){
+    public static Bitmap getImageFromURL(String avatarURL, int dstWidth, int dstHeight){
         InputStream in;
         Bitmap bmp = null;
         int responseCode;
@@ -176,11 +172,16 @@ public class HomeFragment extends Fragment {
                 in = con.getInputStream();
                 bmp = BitmapFactory.decodeStream(in);
                 in.close();
-                bmp = createScaledBitmap(bmp, 196, 196, true);
+                bmp = createScaledBitmap(bmp, dstWidth, dstHeight, true);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         return bmp;
     }
+
+    public void populateContent(){
+
+    }
+
 }

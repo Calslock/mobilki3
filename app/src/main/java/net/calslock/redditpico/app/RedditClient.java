@@ -38,6 +38,7 @@ public class RedditClient {
                         callback.onSuccess(access_token);
                         //Toaster.makeToast(context, access_token);
                     } catch (JSONException j) {
+                        j.printStackTrace();
                         Toaster.makeToast(context, "Couldn't login to account!");
                     }
                 },
