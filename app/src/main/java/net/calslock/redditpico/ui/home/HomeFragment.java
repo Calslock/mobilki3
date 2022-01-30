@@ -24,10 +24,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.VolleyError;
 import com.google.android.material.navigation.NavigationView;
 
+import net.calslock.redditpico.MainBoardActivity;
 import net.calslock.redditpico.R;
 import net.calslock.redditpico.app.RedditClient;
 import net.calslock.redditpico.app.VolleyCallback;
@@ -57,6 +61,7 @@ public class HomeFragment extends Fragment {
     String username, karma, imageurl;
     TextView sideBarName, sideBarKarma;
     ImageView sideBarAvatar;
+    RecyclerView recyclerView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -71,22 +76,21 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textHome;
         tokenRoomDatabase = TokenRoomDatabase.getDatabase(mContext);
         tokenDao = tokenRoomDatabase.tokenDao();
 
         redditClient = new RedditClient(mContext);
 
         this.getUserInfo();
+
         //this.populateContent();
 
-
-        homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        /*homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);
             }
-        });
+        });*/
         return root;
     }
 
@@ -181,6 +185,10 @@ public class HomeFragment extends Fragment {
     }
 
     public void populateContent(){
+        recyclerView = MainBoardActivity.recyclerView;
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
 
     }
 
