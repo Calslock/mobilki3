@@ -20,9 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,7 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.VolleyError;
 import com.google.android.material.navigation.NavigationView;
 
-import net.calslock.redditpico.MainBoardActivity;
+import net.calslock.redditpico.MainMenuAdapter;
 import net.calslock.redditpico.R;
 import net.calslock.redditpico.app.RedditClient;
 import net.calslock.redditpico.app.VolleyCallback;
@@ -39,17 +37,20 @@ import net.calslock.redditpico.databinding.FragmentHomeBinding;
 import net.calslock.redditpico.room.TokenDao;
 import net.calslock.redditpico.room.TokenEntity;
 import net.calslock.redditpico.room.TokenRoomDatabase;
+import net.calslock.redditpico.toaster.Toaster;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickListener{
 
     private HomeViewModel homeViewModel;
     private FragmentHomeBinding binding;
@@ -62,6 +63,9 @@ public class HomeFragment extends Fragment {
     TextView sideBarName, sideBarKarma;
     ImageView sideBarAvatar;
     RecyclerView recyclerView;
+    MainMenuAdapter mainMenuAdapter;
+    Thread t;
+    HomeFragment homeFragment;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -76,14 +80,23 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        homeFragment = this;
+
         tokenRoomDatabase = TokenRoomDatabase.getDatabase(mContext);
         tokenDao = tokenRoomDatabase.tokenDao();
 
         redditClient = new RedditClient(mContext);
+        recyclerView = binding.recyclerMain;
+        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         this.getUserInfo();
-
-        //this.populateContent();
+        try{
+            t.join();
+            this.populateContent();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         /*homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
@@ -116,46 +129,44 @@ public class HomeFragment extends Fragment {
 
     public void getUserInfo(){
         try {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    url = "https://oauth.reddit.com/api/v1/me";
-                    token = tokenDao.getToken(0);
-                    access_token = token.getToken();
-                    redditClient.get(url, access_token, null, new VolleyCallback() {
-                        @SuppressLint("SetTextI18n")
-                        @Override
-                        public void onSuccess(String userInfo) {
-                            Log.i("token", access_token);
-                            Log.i("Data", userInfo);
-                            try {
-                                JSONObject userData = new JSONObject(userInfo);
-                                username = userData.getString("name");
-                                karma = userData.getString("total_karma");
-                                imageurl = userData.getString("icon_img").split("\\?")[0];
-                                Log.i("url", imageurl);
+            t = new Thread(() -> {
+                url = "https://oauth.reddit.com/api/v1/me";
+                token = tokenDao.getToken(0);
+                access_token = token.getToken();
+                redditClient.get(url, access_token, null, new VolleyCallback() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void onSuccess(String userInfo) {
+                        Log.i("token", access_token);
+                        Log.i("Data", userInfo);
+                        try {
+                            JSONObject userData = new JSONObject(userInfo);
+                            username = userData.getString("name");
+                            karma = userData.getString("total_karma");
+                            imageurl = userData.getString("icon_img").split("\\?")[0];
+                            Log.i("url", imageurl);
 
-                                NavigationView navigationView = (NavigationView) requireActivity().findViewById(R.id.nav_view);
-                                View headerView = navigationView.getHeaderView(0);
-                                sideBarName = (TextView) headerView.findViewById(R.id.sideBarName);
-                                sideBarKarma = (TextView) headerView.findViewById(R.id.sideBarKarma);
-                                sideBarAvatar = (ImageView) headerView.findViewById(R.id.sideBarAvatar);
+                            NavigationView navigationView = (NavigationView) requireActivity().findViewById(R.id.nav_view);
+                            View headerView = navigationView.getHeaderView(0);
+                            sideBarName = (TextView) headerView.findViewById(R.id.sideBarName);
+                            sideBarKarma = (TextView) headerView.findViewById(R.id.sideBarKarma);
+                            sideBarAvatar = (ImageView) headerView.findViewById(R.id.sideBarAvatar);
 
-                                sideBarName.setText(username);
-                                sideBarKarma.setText("Karma: " + karma);
-                                Bitmap avatar = getImageFromURL(imageurl, 196, 196);
-                                if (avatar != null) {
-                                    sideBarAvatar.setImageBitmap(avatar);
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                            sideBarName.setText(username);
+                            sideBarKarma.setText("Karma: " + karma);
+                            Bitmap avatar = getImageFromURL(imageurl, 196, 196);
+                            if (avatar != null) {
+                                sideBarAvatar.setImageBitmap(avatar);
                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                        @Override
-                        public void onFailure(VolleyError e){}
-                    });
-                }
-            }).start();
+                    }
+                    @Override
+                    public void onFailure(VolleyError e){}
+                });
+            });
+            t.start();
         } catch(Exception e){
             e.printStackTrace();
         }
@@ -184,12 +195,48 @@ public class HomeFragment extends Fragment {
         return bmp;
     }
 
-    public void populateContent(){
-        recyclerView = MainBoardActivity.recyclerView;
-        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+    public void populateContent() {
+        ArrayList<String[]> dataSet = new ArrayList<>();
 
+        new Thread(() -> {
+            url = "https://oauth.reddit.com/best";
+            token = tokenDao.getToken(0);
+            access_token = token.getToken();
+            redditClient.get(url, access_token, null, new VolleyCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    try {
+                        JSONObject data = new JSONObject(result);
+                        JSONArray children = data.getJSONObject("data").getJSONArray("children");
+                        for (int i = 0; i < children.length(); i++) {
+                            JSONObject childData = children.getJSONObject(i).getJSONObject("data");
+                            String[] childDataSet = {
+                                    childData.getString("subreddit_name_prefixed"),
+                                    childData.getString("score"),
+                                    "u/" + childData.getString("author"),
+                                    childData.getString("title")
+                            };
+                            dataSet.add(childDataSet);
+                        }
+                        String[][] finalDataSet = dataSet.toArray(new String[][]{});
+                        mainMenuAdapter = new MainMenuAdapter(finalDataSet);
+                        mainMenuAdapter.setClickListener(homeFragment);
+                        recyclerView.setAdapter(mainMenuAdapter);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
 
+                @Override
+                public void onFailure(VolleyError error) {
+                    Toaster.makeToast(mContext, "Couldn't connect to server!");
+                }
+            });
+        }).start();
     }
 
+    @Override
+    public void onItemClick(View view, int position) {
+        Toaster.makeToast(mContext, "Clicked on id:"+ position);
+    }
 }

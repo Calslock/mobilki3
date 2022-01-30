@@ -33,13 +33,10 @@ public class MainBoardActivity extends AppCompatActivity {
     TokenDao tokenDao;
     TokenRoomDatabase tkDatabase;
 
-    public static RecyclerView recyclerView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main_board);
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerMain);
 
         tkDatabase = TokenRoomDatabase.getDatabase(getApplicationContext());
         tokenDao = tkDatabase.tokenDao();

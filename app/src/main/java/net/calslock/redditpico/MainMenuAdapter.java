@@ -8,15 +8,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import net.calslock.redditpico.app.VolleyCallback;
+
 public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuAdapter.ViewHolder> {
 
     private String[][] localdataSet;
+    private ItemClickListener itemClickListener;
+
 
     /**
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
      */
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private final TextView singleSubredditName;
         private final TextView singleKarma;
         private final TextView singleUsername;
@@ -28,6 +32,7 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuAdapter.ViewHo
             singleKarma = (TextView) view.findViewById(R.id.singleKarma);
             singleUsername = (TextView) view.findViewById(R.id.singleUsername);
             singleTitle = (TextView) view.findViewById(R.id.singleTitle);
+            view.setOnClickListener(this);
         }
 
         public TextView getSingleSubredditName() {
@@ -45,6 +50,11 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuAdapter.ViewHo
         public TextView getSingleTitle() {
             return singleTitle;
         }
+
+        @Override
+        public void onClick(View view) {
+            if (itemClickListener != null) itemClickListener.onItemClick(view, getAdapterPosition());
+        }
     }
 
     /**
@@ -54,7 +64,7 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuAdapter.ViewHo
      * by RecyclerView.
      */
     public MainMenuAdapter(String[][] dataSet) {
-        System.arraycopy(dataSet, 0, localdataSet, 0, 4);
+        localdataSet = dataSet;
     }
 
     // Create new views (invoked by the layout manager)
@@ -84,5 +94,19 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuAdapter.ViewHo
     @Override
     public int getItemCount() {
         return localdataSet.length;
+    }
+
+    // convenience method for getting data at click position
+    String[] getItem(int id) {
+        return localdataSet[id];
+    }
+
+    public void setClickListener(ItemClickListener itemClickListener) {
+        this.itemClickListener = itemClickListener;
+    }
+
+    // parent activity will implement this method to respond to click events
+    public interface ItemClickListener {
+        void onItemClick(View view, int position);
     }
 }
