@@ -4,6 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/omniq/AndroidStudioProjects/reddit-pico/app/src/main/res/layout/activity_login.xml" value="0.2884963768115942" />
+        <entry key="..\:/Users/omniq/AndroidStudioProjects/reddit-pico/app/src/main/res/layout/settings_activity.xml" value="0.20652173913043478" />
+        <entry key="..\:/Users/omniq/AndroidStudioProjects/reddit-pico/app/src/main/res/layout/single_post_main.xml" value="0.5" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/reddit-pico/app/src/main/res/xml/root_preferences.xml" value="0.38697916666666665" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/activity_login.xml" value="0.33" />
         <entry key="..\:/Users/omniq/AndroidStudioProjects/redditpico/app/src/main/res/layout/activity_main.xml" value="0.21965579710144928" />
