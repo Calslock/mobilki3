@@ -7,7 +7,6 @@ https://api.reddit.com/subreddits/ zwraca subreddity najnowsze
 import static android.graphics.Bitmap.createScaledBitmap;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -244,42 +243,12 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
     @Override
     public void onItemClick(View view, int position, String[] itemData) {
         Toaster.makeToast(mContext, "Clicked on id:"+ position);
-        ArrayList<String[]> data = new ArrayList<>();
+        String subreddit = itemData[0];
+        String article = itemData[4].substring(3);
         try {
-            data = getArticle(itemData);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(view.getContext());
-        builder.setTitle(data.get(0)[3]);
-        builder.setMessage(data.get(0)[6]);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.show_post_dialog, null);
-        builder.setView(dialogView);
-
-        builder.setNegativeButton("Zamknij", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        builder.show();
-
-    }
-
-    public ArrayList<String[]> getArticle(String[] data) throws InterruptedException {
-        ArrayList<String[]> dataSet = new ArrayList<>();
-
-        String subreddit = data[0];
-        String article = data[4].substring(3);
-        Thread t = new Thread(() -> {
-
-            url = "https://oauth.reddit.com/"+subreddit+"/comments/"+article;
-            System.err.println("GET REQUEST ===> "+url);
-            token = tokenDao.getToken(0);
-            access_token = token.getToken();
+            url = "https://oauth.reddit.com/" + subreddit + "/comments/" + article;
+            System.err.println("GET REQUEST ===> " + url);
             redditClient.get(url, access_token, null, new VolleyCallback() {
-
                 @Override
                 public void onSuccess(String result) {
                     try {
@@ -295,9 +264,17 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                                 data.getString("thumbnail"),//5
                                 data.getString("selftext"),//6 //description
                         };
-                        dataSet.add(articleDataSet);
-                        System.out.println("Dataset title: "+dataSet.get(0)[3].toString());
-                        System.out.println("Dataset description: "+dataSet.get(0)[6].toString());
+                        String picture = null;
+                        try{
+                            picture = data.getJSONObject("preview").getJSONArray("images").getJSONObject(0).getJSONObject("source").getString("url");
+                        }
+                        catch (JSONException e) {
+                            picture = "";
+                            e.printStackTrace();
+                        }
+                        finally {
+                            createPostBuilder(articleDataSet, picture);
+                        }
                         //comments
                         /*
                         for (int i = 0; i < children.length(); i++) {
@@ -314,8 +291,6 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                             dataSet.add(childDataSet);
                         }
                          */
-                        String[][] finalDataSet = dataSet.toArray(new String[][]{});
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -326,10 +301,20 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                     Toaster.makeToast(mContext, "Couldn't connect to server!");
                 }
             });
-        });
-        t.start();
-        t.join();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+            }
 
-        return dataSet;
+    public void createPostBuilder(String[] dataSet, String picture){
+        builder = new MaterialAlertDialogBuilder(mContext);
+        builder.setTitle(dataSet[3]);
+        builder.setMessage(dataSet[6]);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.show_post_dialog, null);
+        builder.setView(dialogView);
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
     }
 }
