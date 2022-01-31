@@ -7,7 +7,9 @@ https://api.reddit.com/subreddits/ zwraca subreddity najnowsze
 import static android.graphics.Bitmap.createScaledBitmap;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.VolleyError;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
 import net.calslock.redditpico.MainMenuAdapter;
@@ -66,6 +69,8 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
     MainMenuAdapter mainMenuAdapter;
     Thread t;
     HomeFragment homeFragment;
+    MaterialAlertDialogBuilder builder;
+    //AlertDialog.Builder builder;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -214,7 +219,8 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                                     childData.getString("subreddit_name_prefixed"),
                                     childData.getString("score"),
                                     "u/" + childData.getString("author"),
-                                    childData.getString("title")
+                                    childData.getString("title"),
+                                    childData.getString("name")
                             };
                             dataSet.add(childDataSet);
                         }
@@ -236,7 +242,69 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
     }
 
     @Override
-    public void onItemClick(View view, int position) {
+    public void onItemClick(View view, int position, String[] itemData) {
         Toaster.makeToast(mContext, "Clicked on id:"+ position);
+        builder = getArticle(view.getContext(), itemData);
+        builder.show();
+
+    }
+
+    public MaterialAlertDialogBuilder getArticle(Context context, String[] data) {
+        ArrayList<String[]> dataSet = new ArrayList<>();
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
+        String subreddit = data[0];
+        String article = data[4].substring(3);
+        new Thread(() -> {
+
+            url = "https://oauth.reddit.com/"+subreddit+"/comments/"+article;
+            System.err.println("GET REQUEST ===> "+url);
+            token = tokenDao.getToken(0);
+            access_token = token.getToken();
+            redditClient.get(url, access_token, null, new VolleyCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    try {
+                        JSONObject data = new JSONObject(result);
+                        JSONArray children = data.getJSONObject("data").getJSONArray("children");
+                        for (int i = 0; i < children.length(); i++) {
+                            JSONObject childData = children.getJSONObject(i).getJSONObject("data");
+                            String[] childDataSet = {
+                                    childData.getString("subreddit_name_prefixed"),//0
+                                    childData.getString("score"),//1
+                                    "u/" + childData.getString("author"),//2
+                                    childData.getString("title"),//3
+                                    childData.getString("name"),//4
+                                    childData.getString("thumbnail"),//5
+                            };
+                            dataSet.add(childDataSet);
+                        }
+                        String[][] finalDataSet = dataSet.toArray(new String[][]{});
+                        mainMenuAdapter = new MainMenuAdapter(finalDataSet);
+                        mainMenuAdapter.setClickListener(homeFragment);
+                        recyclerView.setAdapter(mainMenuAdapter);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(VolleyError error) {
+                    Toaster.makeToast(mContext, "Couldn't connect to server!");
+                }
+            });
+        }).start();
+
+        builder.setTitle(article);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.show_post_dialog, null);
+        builder.setView(dialogView);
+
+        builder.setNegativeButton("Zamknij", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        return builder;
     }
 }

@@ -53,7 +53,8 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuAdapter.ViewHo
 
         @Override
         public void onClick(View view) {
-            if (itemClickListener != null) itemClickListener.onItemClick(view, getAdapterPosition());
+            String[] itemData = localdataSet[getAdapterPosition()];
+            if (itemClickListener != null) itemClickListener.onItemClick(view, getAdapterPosition(), itemData);
         }
     }
 
@@ -107,6 +108,6 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuAdapter.ViewHo
 
     // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
-        void onItemClick(View view, int position);
+        void onItemClick(View view, int position, String[] itemData);
     }
 }
