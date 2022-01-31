@@ -244,23 +244,42 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
     @Override
     public void onItemClick(View view, int position, String[] itemData) {
         Toaster.makeToast(mContext, "Clicked on id:"+ position);
-        builder = getArticle(view.getContext(), itemData);
+        ArrayList<String[]> data = new ArrayList<>();
+        try {
+            data = getArticle(itemData);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(view.getContext());
+        builder.setTitle(data.get(0)[3]);
+        builder.setMessage(data.get(0)[6]);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.show_post_dialog, null);
+        builder.setView(dialogView);
+
+        builder.setNegativeButton("Zamknij", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
         builder.show();
 
     }
 
-    public MaterialAlertDialogBuilder getArticle(Context context, String[] data) {
+    public ArrayList<String[]> getArticle(String[] data) throws InterruptedException {
         ArrayList<String[]> dataSet = new ArrayList<>();
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
+
         String subreddit = data[0];
         String article = data[4].substring(3);
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
 
             url = "https://oauth.reddit.com/"+subreddit+"/comments/"+article;
             System.err.println("GET REQUEST ===> "+url);
             token = tokenDao.getToken(0);
             access_token = token.getToken();
             redditClient.get(url, access_token, null, new VolleyCallback() {
+
                 @Override
                 public void onSuccess(String result) {
                     try {
@@ -296,8 +315,7 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                         }
                          */
                         String[][] finalDataSet = dataSet.toArray(new String[][]{});
-                        builder.setTitle(dataSet.get(0)[3]);
-                        builder.setMessage(dataSet.get(0)[6]);
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -308,17 +326,10 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                     Toaster.makeToast(mContext, "Couldn't connect to server!");
                 }
             });
-        }).start();
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.show_post_dialog, null);
-        builder.setView(dialogView);
-
-        builder.setNegativeButton("Zamknij", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
         });
-        return builder;
+        t.start();
+        t.join();
+
+        return dataSet;
     }
 }
