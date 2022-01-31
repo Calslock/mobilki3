@@ -17,6 +17,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewManager;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -49,6 +52,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -180,6 +185,7 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
         InputStream in;
         Bitmap bmp = null;
         int responseCode;
+        int newWidth, newHeight;
         try {
             URL url = new URL(avatarURL);
             HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
@@ -191,7 +197,14 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                 in = con.getInputStream();
                 bmp = BitmapFactory.decodeStream(in);
                 in.close();
-                bmp = createScaledBitmap(bmp, dstWidth, dstHeight, true);
+                if(dstWidth == 0){
+                    while (bmp.getHeight() > dstHeight){
+                        newWidth = (int) (bmp.getHeight()*0.8);
+                        newHeight = (int) (bmp.getWidth()*0.8);
+                        bmp = createScaledBitmap(bmp, newWidth, newHeight, true);
+                    }
+                }
+                else bmp = createScaledBitmap(bmp, dstWidth, dstHeight, true);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -242,7 +255,6 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
 
     @Override
     public void onItemClick(View view, int position, String[] itemData) {
-        Toaster.makeToast(mContext, "Clicked on id:"+ position);
         String subreddit = itemData[0];
         String article = itemData[4].substring(3);
         try {
@@ -264,16 +276,14 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                                 data.getString("thumbnail"),//5
                                 data.getString("selftext"),//6 //description
                         };
-                        String picture = null;
+                        String picture;
                         try{
                             picture = data.getJSONObject("preview").getJSONArray("images").getJSONObject(0).getJSONObject("source").getString("url");
-                        }
-                        catch (JSONException e) {
-                            picture = "";
-                            e.printStackTrace();
-                        }
-                        finally {
                             createPostBuilder(articleDataSet, picture);
+                        }
+                        catch (org.json.JSONException e) {
+                            //e.printStackTrace();
+                            createPostBuilder(articleDataSet, "");
                         }
                         //comments
                         /*
@@ -306,15 +316,70 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
         }
             }
 
+    @SuppressLint("SetTextI18n")
     public void createPostBuilder(String[] dataSet, String picture){
+        Log.i("pic", picture);
         builder = new MaterialAlertDialogBuilder(mContext);
         builder.setTitle(dataSet[3]);
-        builder.setMessage(dataSet[6]);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.show_post_dialog, null);
         builder.setView(dialogView);
 
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        TextView username, subreddit, karma, content;
+        ImageButton upvote, downvote;
+        ImageView image;
+
+        username = (TextView) dialogView.findViewById(R.id.dialogAuthor);
+        subreddit = (TextView) dialogView.findViewById(R.id.dialogSubreddit);
+        karma = (TextView) dialogView.findViewById(R.id.dialogKarma);
+        content = (TextView) dialogView.findViewById(R.id.dialogContent);
+        upvote = (ImageButton) dialogView.findViewById(R.id.upVote);
+        downvote = (ImageButton) dialogView.findViewById(R.id.downVote);
+        image = (ImageView) dialogView.findViewById(R.id.dialogImage);
+
+        username.setText(dataSet[2]);
+        subreddit.setText(dataSet[0]);
+        karma.setText(dataSet[1]);
+        if(picture.equals("")){
+            ((ViewManager)image.getParent()).removeView(image);
+            content.setText(dataSet[6]);
+        }
+        else if(picture.contains("external-preview")){
+            ((ViewManager)image.getParent()).removeView(image);
+            content.setText("Unfortunately, this content is not available.");
+        }
+        else{
+            picture = picture.replaceAll("amp;s", "s");
+            ((ViewManager)content.getParent()).removeView(content);
+            Bitmap bmp = getImageFromURL(picture, 0, 480);
+            image.setImageBitmap(bmp);
+        }
+
+        upvote.setOnClickListener(view -> {
+            vote(dataSet[4], 1);
+        });
+
+        downvote.setOnClickListener(view -> {
+            vote(dataSet[4], -1);
+        });
+
+
+        //builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    public void vote(String id, int dir){
+        String url = "https://oauth.reddit.com/api/vote?id=" + id + "&dir=" + dir;
+        redditClient.post(url, access_token, null, null, new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                Toaster.makeToast(mContext, "Successfully voted!");
+            }
+
+            @Override
+            public void onFailure(VolleyError error) {
+                Toaster.makeToast(mContext, "Couldn't connect to servers!");
+            }
+        });
     }
 }

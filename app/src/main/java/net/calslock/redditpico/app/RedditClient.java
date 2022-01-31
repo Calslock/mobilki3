@@ -95,9 +95,8 @@ public class RedditClient {
     }
 
     @SuppressWarnings("unused")
-    public void postJSON(String url, String token, JSONObject requestJSON, Map<String, String> addHeaders, final VolleyCallback callback) {
+    public void post(String url, String token, String requestBody, Map<String, String> addHeaders, final VolleyCallback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
-        final String requestBody = requestJSON.toString();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 response -> {
                     try {
@@ -118,15 +117,15 @@ public class RedditClient {
                 }
                 return headers;
             }
-            @Override
+            /*@Override
             public byte[] getBody() {
                 try {
                     return requestBody.getBytes(StandardCharsets.UTF_8);
                 } catch (Exception e){
                     return null;
                 }
-            }
-            @Override public String getBodyContentType() {return "application/json; charset=utf-8";}
+            }*/
+            //@Override public String getBodyContentType() {return "application/json; charset=utf-8";}
         };
         queue.add(stringRequest);
     }
