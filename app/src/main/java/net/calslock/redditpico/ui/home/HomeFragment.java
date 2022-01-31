@@ -264,8 +264,23 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                 @Override
                 public void onSuccess(String result) {
                     try {
-                        JSONObject data = new JSONObject(result);
-                        JSONArray children = data.getJSONObject("data").getJSONArray("children");
+                        JSONArray all = new JSONArray(result);
+                        //article
+                        JSONObject data = all.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
+                        String[] articleDataSet = {
+                                data.getString("subreddit_name_prefixed"),//0
+                                data.getString("score"),//1
+                                "u/" + data.getString("author"),//2
+                                data.getString("title"),//3
+                                data.getString("name"),//4
+                                data.getString("thumbnail"),//5
+                                data.getString("selftext"),//6 //description
+                        };
+                        dataSet.add(articleDataSet);
+                        System.out.println("Dataset title: "+dataSet.get(0)[3].toString());
+                        System.out.println("Dataset description: "+dataSet.get(0)[6].toString());
+                        //comments
+                        /*
                         for (int i = 0; i < children.length(); i++) {
                             JSONObject childData = children.getJSONObject(i).getJSONObject("data");
                             String[] childDataSet = {
@@ -275,13 +290,14 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                                     childData.getString("title"),//3
                                     childData.getString("name"),//4
                                     childData.getString("thumbnail"),//5
+                                    childData.getString("selftext"),//6 //description
                             };
                             dataSet.add(childDataSet);
                         }
+                         */
                         String[][] finalDataSet = dataSet.toArray(new String[][]{});
-                        mainMenuAdapter = new MainMenuAdapter(finalDataSet);
-                        mainMenuAdapter.setClickListener(homeFragment);
-                        recyclerView.setAdapter(mainMenuAdapter);
+                        builder.setTitle(dataSet.get(0)[3]);
+                        builder.setMessage(dataSet.get(0)[6]);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -293,8 +309,6 @@ public class HomeFragment extends Fragment implements MainMenuAdapter.ItemClickL
                 }
             });
         }).start();
-
-        builder.setTitle(article);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.show_post_dialog, null);
         builder.setView(dialogView);
